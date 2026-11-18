@@ -83,7 +83,7 @@ REST_FRAMEWORK = {
 }
 
 SPECTACULAR_SETTINGS = {
-    "TITLE": "API Backend - Gestão de Promotores e Cadastros",
+    "TITLE": "API Express",
     "DESCRIPTION": "API REST escalável conectada ao PostgreSQL com documentação Swagger.",
     "VERSION": "2.0.0",
     "SERVE_INCLUDE_SCHEMA": False,
