@@ -2,21 +2,11 @@ import os
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
-
 SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY", "django-insecure-dev-key")
+ADMIN_API_KEY = os.environ.get("ADMIN_API_KEY", "ExpressAdmin@2026!ChaveLote")
 DEBUG = os.environ.get("DJANGO_DEBUG", "False").lower() == "true"
-
-ALLOWED_HOSTS = [
-    host.strip()
-    for host in os.environ.get("DJANGO_ALLOWED_HOSTS", "localhost,127.0.0.1").split(",")
-    if host.strip()
-]
-
-CSRF_TRUSTED_ORIGINS = [
-    origin.strip()
-    for origin in os.environ.get("DJANGO_CSRF_ORIGINS", "").split(",")
-    if origin.strip()
-]
+ALLOWED_HOSTS = [h.strip() for h in os.environ.get("DJANGO_ALLOWED_HOSTS", "localhost,127.0.0.1").split(",") if h.strip()]
+CSRF_TRUSTED_ORIGINS = [o.strip() for o in os.environ.get("DJANGO_CSRF_ORIGINS", "").split(",") if o.strip()]
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -29,7 +19,7 @@ INSTALLED_APPS = [
     "rest_framework",
     "drf_spectacular",
     "apps.autenticacao",
-    "apps.cadastros",
+    "apps.demonstrativos",
 ]
 
 MIDDLEWARE = [
@@ -44,25 +34,20 @@ MIDDLEWARE = [
 ]
 
 CORS_ALLOW_ALL_ORIGINS = os.environ.get("CORS_ALLOW_ALL", "True").lower() == "true"
-
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 ROOT_URLCONF = "core.urls"
-
-TEMPLATES = [
-    {
-        "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [],
-        "APP_DIRS": True,
-        "OPTIONS": {
-            "context_processors": [
-                "django.template.context_processors.request",
-                "django.contrib.auth.context_processors.auth",
-                "django.contrib.messages.context_processors.messages",
-            ],
-        },
-    },
-]
-
 WSGI_APPLICATION = "core.wsgi:application"
+
+TEMPLATES = [{
+    "BACKEND": "django.template.backends.django.DjangoTemplates",
+    "DIRS": [],
+    "APP_DIRS": True,
+    "OPTIONS": {"context_processors": [
+        "django.template.context_processors.request",
+        "django.contrib.auth.context_processors.auth",
+        "django.contrib.messages.context_processors.messages",
+    ]},
+}]
 
 DATABASES = {
     "default": {
@@ -76,17 +61,19 @@ DATABASES = {
     }
 }
 
+MEDIA_URL = "/media/"
+MEDIA_ROOT = BASE_DIR / "media"
+
 REST_FRAMEWORK = {
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
-    "DEFAULT_PAGINATION_CLASS": "core.pagination.PadraoPagination",
-    "PAGE_SIZE": 50,
 }
 
 SPECTACULAR_SETTINGS = {
     "TITLE": "API Express",
-    "DESCRIPTION": "API REST escalável conectada ao PostgreSQL com documentação Swagger.",
-    "VERSION": "2.0.0",
+    "DESCRIPTION": "Portal de Demonstrativos dos Promotores - Login por CPF e gestão quinzenal de PDFs.",
+    "VERSION": "3.0.0",
     "SERVE_INCLUDE_SCHEMA": False,
+    "COMPONENT_SPLIT_REQUEST": True,
 }
 
 LANGUAGE_CODE = "pt-br"
