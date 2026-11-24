@@ -14,3 +14,17 @@ frontend_tmp/
 *.zip
 .vscode/
 .idea/
+
+# Proteção de ambiente, mídias e build do front-end
+.env
+*.env
+__pycache__/
+*.py[cod]
+media/
+staticfiles/
+frontend_dist/
+frontend_tmp/
+*.pdf
+*.xlsx
+*.csv
+*.zip
