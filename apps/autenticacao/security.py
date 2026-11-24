@@ -5,6 +5,11 @@ from drf_spectacular.extensions import OpenApiAuthenticationExtension
 from rest_framework.authentication import BaseAuthentication
 from rest_framework.exceptions import AuthenticationFailed
 
+class UsuarioAutenticado(dict):
+    @property
+    def is_authenticated(self):
+        return True
+
 def gerar_token_promotor(cadastro_id: str, cpf_limpo: str, nome: str) -> str:
     agora = datetime.now(timezone.utc)
     payload = {"sub": str(cadastro_id), "cpf": cpf_limpo, "nome": nome, "iat": agora, "exp": agora + timedelta(hours=12)}
@@ -17,7 +22,7 @@ class PromotorJWTAuthentication(BaseAuthentication):
         if not token:
             return None
         try:
-            return (jwt.decode(token, settings.SECRET_KEY, algorithms=["HS256"]), token)
+            return (UsuarioAutenticado(jwt.decode(token, settings.SECRET_KEY, algorithms=["HS256"])), token)
         except jwt.ExpiredSignatureError:
             raise AuthenticationFailed("Sessão expirada.")
         except jwt.InvalidTokenError:
@@ -30,7 +35,7 @@ class AdminKeyAuthentication(BaseAuthentication):
             return None
         if chave != settings.ADMIN_API_KEY:
             raise AuthenticationFailed("Chave administrativa inválida.")
-        return ({"role": "admin"}, chave)
+        return (UsuarioAutenticado({"role": "admin"}), chave)
 
 class PromotorJWTScheme(OpenApiAuthenticationExtension):
     target_class = "apps.autenticacao.security.PromotorJWTAuthentication"

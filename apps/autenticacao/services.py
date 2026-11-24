@@ -33,6 +33,36 @@ def obter_colunas_cadastros() -> dict:
         "cpf": "cpf" if "cpf" in cols else next((c for c in cols if "cpf" in c.lower()), "cpf"),
     }
 
+def promotor_esta_ativo(promotor: dict) -> bool:
+    if not promotor:
+        return False
+    mapa = {k.lower(): k for k in promotor.keys()}
+    col_in = next((mapa[c] for c in ("inativo", "desligado") if c in mapa), None)
+    if col_in:
+        v_in = promotor.get(col_in)
+        if isinstance(v_in, bool):
+            return not v_in
+        if isinstance(v_in, (int, float)):
+            return v_in == 0
+        if isinstance(v_in, str) and normalizar_texto(v_in) in {"TRUE", "T", "1", "S", "SIM", "Y", "YES"}:
+            return False
+    candidatos = ("ativo", "status", "situacao", "situacao_cadastral", "status_promotor", "estado")
+    col = next((mapa[c] for c in candidatos if c in mapa), None) or next((o for l, o in mapa.items() if any(p in l for p in ("ativo", "status", "situacao"))), None)
+    if not col:
+        return True
+    val = promotor.get(col)
+    if val is None:
+        return False
+    if isinstance(val, bool):
+        return val
+    if isinstance(val, (int, float)):
+        return val != 0
+    if isinstance(val, str):
+        v = normalizar_texto(val)
+        if not v or v in {"FALSE", "F", "0", "N", "NAO"} or any(v.startswith(p) for p in ("INATIV", "DESATIV", "DESLIG", "BLOQ", "DEMIT", "CANCEL", "SUSP", "AFAST")):
+            return False
+    return True
+
 def buscar_promotor_por_cpf(cpf_limpo: str) -> dict | None:
     col_cpf = obter_colunas_cadastros()["cpf"]
     sql = f"SELECT * FROM cadastros WHERE LPAD(regexp_replace(COALESCE(CAST({col_cpf} AS TEXT), ''), '[^0-9]', '', 'g'), 11, '0') = %s LIMIT 1"
